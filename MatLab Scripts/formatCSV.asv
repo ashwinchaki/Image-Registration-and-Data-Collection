@@ -8,21 +8,20 @@ function formatCSV(foldername)
     nf = numel(files);
     for a=2:nf
 
-%         currentfile = files{a,1};
-%         indexof = strfind(currentfile, '.');
-%         currentfile = currentfile(1:(indexof-1));
+        currentfile = files{a,1};
+        indexof = strfind(currentfile, '.');
+        currentfile = currentfile(1:(indexof-1));
 
         for b = 1:3
 
             newarray(b,:) = workingarray((3*(a-2))+b,:);
 
         end
-        Transformations.files{a-1}.filenames = [files{a-1,1},files{a,1}];
-        Transformations.files{a-1}.transformpoints = newarray;
+        Transformations.files{1
     end
     %mousefile = strcat(mousename,'.mat');
      fname  = sprintf('Mouse-%s',foldername);
-    save(fname,'Transformations');
+    save(fname,'transformpoints');
 end
 
 

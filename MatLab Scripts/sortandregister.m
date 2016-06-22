@@ -30,7 +30,7 @@ dirFlags = [files.isdir];
 subFolders = files(dirFlags);
 % Print folder names to command window.
 for i = 3 : length(subFolders)
-    subFolders = {subFolders.name}.'
+    subFolders = {subFolders.name}.';
 	foldername = subFolders{i};
     currentpath = pwd;
     inpath = strcat(currentpath, '\', foldername, '\');
@@ -42,7 +42,7 @@ for i = 3 : length(subFolders)
     inpath = strcat(inpath, firstImage);
     args = inpath;
     macro_path='C:\Users\Ashwin Chakicherla\Desktop\ImageJ\macros\StackRegMacro.ijm';
-    MIJ.start('C:\Users\Ashwin Chakicherla\Desktop\ImageJ')
+    %MIJ.start('C:\Users\Ashwin Chakicherla\Desktop\ImageJ')
     IJ = ij.IJ();
     IJ.runMacroFile(java.lang.String(macro_path),java.lang.String(args));
     IJ.run(java.lang.String('Quit'));
