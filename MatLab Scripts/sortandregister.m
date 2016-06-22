@@ -46,9 +46,9 @@ for i = 3 : length(subFolders)
     IJ = ij.IJ();
     IJ.runMacroFile(java.lang.String(macro_path),java.lang.String(args));
     IJ.run(java.lang.String('Quit'));
+    formatCSV(foldername);
     cd(currentpath);
 end
-mousename = foldername;
 %formatCSV;
 % end
     

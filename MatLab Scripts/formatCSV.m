@@ -1,3 +1,4 @@
+function formatCSV(foldername)
 workingarray = csvread('Transformation_Points.csv');
 delete('Transformation_Points.csv');
 transformpoints = struct;
@@ -21,8 +22,9 @@ for a=2:nf
     transformpoints.(currentfile) = newarray;
 end
 %mousefile = strcat(mousename,'.mat');
-fname  = sprintf('Mouse-%s',mousename);
+fname  = sprintf('Mouse-%s',foldername);
 save(fname,'transformpoints');
+end
 
 
         
