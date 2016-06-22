@@ -20,8 +20,8 @@ for i=1:nf
         end
 end
 
-javaaddpath 'C:\Program Files\MATLAB\R2014a\java\jar\mij.jar'
-javaaddpath 'C:\Program Files\MATLAB\R2014a\java\jar\ij.jar'
+javaaddpath 'C:\Program Files\MATLAB\R2015a\java\jar\mij.jar'
+javaaddpath 'C:\Program Files\MATLAB\R2015a\java\jar\ij.jar'
 % Get a list of all files and folders in this folder.
 files = dir();
 % Get a logical vector that tells which is a directory.
@@ -41,13 +41,15 @@ for i = 3 : length(subFolders)
     firstImage = firstImage{1};
     inpath = strcat(inpath, firstImage);
     args = inpath;
-    macro_path='C:\Users\kreitzerlab\Desktop\ImageJ\macros\StackRegMacro.ijm';
-    MIJ.start('C:\Users\kreitzerlab\Desktop\ImageJ')
+    macro_path='C:\Users\Ashwin Chakicherla\Desktop\ImageJ\macros\StackRegMacro.ijm';
+    MIJ.start('C:\Users\Ashwin Chakicherla\Desktop\ImageJ')
     IJ = ij.IJ();
     IJ.runMacroFile(java.lang.String(macro_path),java.lang.String(args));
     IJ.run(java.lang.String('Quit'));
     cd(currentpath);
 end
+mousename = foldername;
+%formatCSV;
 % end
     
     
