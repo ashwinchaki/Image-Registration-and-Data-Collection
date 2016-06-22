@@ -11,3 +11,5 @@ Required Software:
 [MIJ (MATLAB-ImageJ Plugin)](http://bigwww.epfl.ch/sage/soft/mij/) <-- This will need to be initialized using the javaaddpath command, as detailed on their site.
 It is already initialized in the script, so this only applies to those attempting to use it without the script.
 
+[Export_Fig (MATLAB Script)](https://www.mathworks.com/matlabcentral/fileexchange/23629-export-fig) - add this to the MATLAB path or put it in the default MATLAB folder in `\Users\Documents\MATLAB`
+
