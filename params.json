@@ -1,6 +1,6 @@
 {
   "name": "Image-registration-and-data-collection",
   "tagline": "An Image Registration tool in MATLAB using ImageJ and TurboReg",
-  "body": "# Image Registration and Data Collection\r\n\r\nThis is a collection of scripts to run ImageJ turboreg on a stack of .png files of neurons.\r\n\r\nRequired Software:\r\n\r\n[MATLAB](http://www.mathworks.com/products/matlab/)\r\n\r\n[ImageJ](https://imagej.nih.gov/ij/download.html)\r\n\r\n[MIJ (MATLAB-ImageJ Plugin)](http://bigwww.epfl.ch/sage/soft/mij/) <-- This will need to be initialized using the javaaddpath command, as detailed on their site.\r\nIt is already initialized in the script, so this only applies to those attempting to use it without the script.\r\n\r\n[Export_Fig (MATLAB Script)](https://www.mathworks.com/matlabcentral/fileexchange/23629-export-fig) - add this to the MATLAB path or put it in the default MATLAB folder in `\\Users\\Documents\\MATLAB`\r\n\r\n",
+  "body": "# Image Registration and Data Collection\r\n\r\nThis is a collection of scripts to run ImageJ TurboReg on stacks of already finished .mat files from PCA analysis.\r\n\r\nFor more instructions, see the [wiki](https://github.com/mynamedoesntfi/Image-Registration-and-Data-Collection/wiki)",
   "note": "Don't delete this file! It's used internally to help with page regeneration."
 }
