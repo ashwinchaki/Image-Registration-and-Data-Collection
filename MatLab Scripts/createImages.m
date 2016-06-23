@@ -20,7 +20,7 @@ disp('Creating Images / Figures - Outputting to Current Directory')
 disp('.')
 disp('.')
 disp('.')
-
+% 
 javaaddpath 'C:\Program Files\MATLAB\R2015a\java\jar\mij.jar'
 javaaddpath 'C:\Program Files\MATLAB\R2015a\java\jar\ij.jar'
 MIJ.start('C:\Users\Ashwin Chakicherla\Desktop\ImageJ')
