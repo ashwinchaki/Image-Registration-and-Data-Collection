@@ -22,7 +22,7 @@ function formatCSV(foldername)
         angle = (atan2(newarray(3,2)-newarray(2,2),newarray(3,1)-newarray(2,1)) - atan2(newarray(3,4)-newarray(2,4),newarray(3,3)-newaray(2,3)));
         Transformations.files{a-1}.angle = angle;
         translation = [newarray(1,3)-newarray(1,1);newarray(1,4)-newarray(1,2)];
-        Transformations.files{a-1}.translation = translation;
+        Transformations.files{a-1}.translation = translation; 
     end
     %mousefile = strcat(mousename,'.mat');
      fname  = sprintf('Mouse-%s',foldername);
