@@ -1,4 +1,4 @@
-function varargout = testGUI2(varargin)
+function varargout = ICA_GUI(varargin)
 
 % TESTGUI2 MATLAB code for testGUI2.fig
 %      TESTGUI2, by itself, creates a new TESTGUI2 or raises the existing
@@ -23,14 +23,14 @@ function varargout = testGUI2(varargin)
 
 % Edit the above text to modify the response to help testGUI2
 
-% Last Modified by GUIDE v2.5 27-Jun-2016 11:12:38
+% Last Modified by GUIDE v2.5 28-Jun-2016 15:20:00
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @testGUI2_OpeningFcn, ...
-                   'gui_OutputFcn',  @testGUI2_OutputFcn, ...
+                   'gui_OpeningFcn', @ICA_GUI_OpeningFcn, ...
+                   'gui_OutputFcn',  @ICA_GUI_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -45,7 +45,7 @@ end
 % End initialization code - DO NOT EDIT
 
 % --- Executes just before testGUI2 is made visible.
-function testGUI2_OpeningFcn(hObject, eventdata, handles, varargin)
+function ICA_GUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -74,10 +74,13 @@ handles.ica_segments = ica_segments;
 handles.segLabels = segLabels;
 handles.fn = fn;
 handles.ica_sig = ica_sig;
-handles.saveCell = zeros(50,1); % change to number of ICAs
-handles.stdThresh = zeros(50,1); % peak standard deviation
-handles.ICpeaks = cell(50,1); % initialize peak location, size data
-handles.checkbox1
+handles.saveCell = zeros(size(ica_sig,1),1); % change to number of ICAs
+for i = 1:size(ica_sig,1)
+    handles.stdThresh (i,1) = 0;
+end
+% handles.stdThresh = zeros(50,1); % peak standard deviation
+handles.ICpeaks = cell(size(ica_sig,1),1); % initialize peak location, size data
+handles.checkbox1;
 handles.currentObj = 1;
 % Update handles structure
 guidata(hObject, handles);
@@ -99,7 +102,7 @@ uiwait(gcf);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = testGUI2_OutputFcn(hObject, eventdata, handles)
+function varargout = ICA_GUI_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -109,110 +112,6 @@ function varargout = testGUI2_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles;
 close(gcf)
 
-
-% 
-% % --------------------------------------------------------------------
-% function FileMenu_Callback(hObject, eventdata, handles)
-% % hObject    handle to FileMenu (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% 
-% 
-% % --------------------------------------------------------------------
-% function OpenMenuItem_Callback(hObject, eventdata, handles)
-% % hObject    handle to OpenMenuItem (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% file = uigetfile('*.fig');
-% if ~isequal(file, 0)
-%     open(file);
-% end
-% 
-% % --------------------------------------------------------------------
-% function PrintMenuItem_Callback(hObject, eventdata, handles)
-% % hObject    handle to PrintMenuItem (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% printdlg(handles.figure1)
-% 
-% % --------------------------------------------------------------------
-% function CloseMenuItem_Callback(hObject, eventdata, handles)
-% % hObject    handle to CloseMenuItem (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% selection = questdlg(['Close ' get(handles.figure1,'Name') '?'],...
-%                      ['Close ' get(handles.figure1,'Name') '...'],...
-%                      'Yes','No','Yes');
-% if strcmp(selection,'No')
-%     return;
-% end
-% 
-% delete(handles.figure1)
-
-
-% --- Executes on selection change in popupmenu1.
-% function popupmenu1_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = get(hObject,'String') returns popupmenu1 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu1
-% popup_sel_index = get(handles.popupmenu1, 'Value');
-% sVal = handles.stdThresh(popup_sel_index);
-% set(handles.slider1,'Value',sVal);
-% get(handles.slider1,'Value')
-% ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal); % in z-score
-% % Saves toggle position of save cell:
-% % if handles.saveCell(popup_sel_index)==0
-% %     handles.checkbox1.Value = 0;
-% % else
-% %     handles.checkbox1.Value = 1;
-% % end
-% axes(handles.axes4);
-% cla;
-% segIdx = find(handles.segLabels==popup_sel_index);
-% vidFrame = imread(handles.fn,100);
-% imshow(vidFrame,[0 max(max(vidFrame))]);
-% hold on
-% for j = 1:length(segIdx)
-%     [B,L,N] = bwboundaries(squeeze(handles.ica_segments(segIdx(j),:,:)));
-%     plot(B{1}(:,2),B{1}(:,1),'Color',[0 0 1],'LineWidth',1.5);
-% end
-% 
-% axes(handles.axes1);
-% cla;
-% plot(ICpeaks.sig)
-% vidLen = size(handles.ica_sig,2);
-% set(gca,'xtick',[]);
-% set(gca,'xticklabel',[]);
-% title('Full ICA trace');
-% 
-% handles.ICpeaks{popup_sel_index} = ICpeaks.data;
-% sVal
-% % 
-% % % will update plots based on slider value
-% plot(ICpeaks.sig,'b')
-% hold on
-% vidLen = size(ICpeaks.sig,2);
-% line([0 vidLen],[sVal sVal],'Color',[0 0 0]);
-% plot(ICpeaks.data(:,1),ICpeaks.data(:,2),'r.')
-    
-    
-
-% % --- Executes during object creation, after setting all properties.
-% function popupmenu1_CreateFcn(hObject, eventdata, handles)
-% % hObject    handle to popupmenu1 (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    empty - handles not created until after all CreateFcns called
-% % Hint: popupmenu controls usually have a white background on Windows.
-% %       See ISPC and COMPUTER.
-% if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-%      set(hObject,'BackgroundColor','white');
-% end
-% set(hObject, 'String', objStr);
-
-
 % --- Executes on slider movement.
 function slider1_Callback(hObject, eventdata, handles)
 % hObject    handle to slider1 (see GCBO)
@@ -221,7 +120,7 @@ function slider1_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-popup_sel_index = handles.currentObj
+popup_sel_index = handles.currentObj;
 sVal = get(handles.slider1,'value');
 axes(handles.axes1);
 cla;
@@ -274,18 +173,18 @@ end
 
 
 % --- Executes on button press in pushbutton1. VIDEO
-function pushbutton1_Callback(hObject, eventdata, handles)
+function pushbutton1_Callback(hObject, eventdata, handles) %#ok<*INUSL>
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-popup_sel_index = handles.currentObj;
-sVal = get(handles.slider1,'value');
-ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal); % in z-score
-sz = size(imread(handles.fn,1));
+popup_sel_index = handles.currentObj
+sVal = get(handles.slider1,'value')
+ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal) % in z-score
+sz = size(imread(handles.fn,1))
 vid = zeros(sz(1),sz(2),100);
-pkFrame = ICpeaks.data(:,1);
-pkFrame(find(pkFrame<10)) = [];
-peakTot = min(length(pkFrame),10); 
+pkFrame = ICpeaks.data(:,1)
+pkFrame(find(pkFrame<10)) = [] %#ok<FNDSB>
+peakTot = min(length(pkFrame),10) 
 if peakTot<1
     disp('no peaks selected')
 else
@@ -335,15 +234,22 @@ function pushbutton5_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton5 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.currentObj - handles.currentObj-1;
+handles.currentObj = handles.currentObj-1;
 if ((handles.currentObj) <= 0)
-    a = errordlg('Cannot go to previous cell!','Index Error');
-    handles.currentObj = handles.currentObj + 1;
+    errordlg('No previous cell exists!','Index Error')
+    handles.currentObj = 0;
 else
 popup_sel_index = handles.currentObj;
+set(handles.text2, 'String', num2str(popup_sel_index));
 sVal = handles.stdThresh(popup_sel_index);
 set(handles.slider1,'Value',sVal);
-get(handles.slider1,'Value')
+get(handles.slider1,'Value');
+slider1_Callback(hObject, eventdata, handles);
+if handles.saveCell(popup_sel_index) == 1
+    set(handles.checkbox1,'Value',1);
+else
+    set(handles.checkbox1,'Value',0);
+end
 ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal); % in z-score
 % Saves toggle position of save cell:
 % if handles.saveCell(popup_sel_index)==0
@@ -371,7 +277,7 @@ set(gca,'xticklabel',[]);
 title('Full ICA trace');
 
 handles.ICpeaks{popup_sel_index} = ICpeaks.data;
-sVal
+sVal;
 % 
 % % will update plots based on slider value
 plot(ICpeaks.sig,'b')
@@ -380,6 +286,7 @@ vidLen = size(ICpeaks.sig,2);
 line([0 vidLen],[sVal sVal],'Color',[0 0 0]);
 plot(ICpeaks.data(:,1),ICpeaks.data(:,2),'r.')
 end
+guidata(hObject, handles);
 
 
 
@@ -389,14 +296,21 @@ function pushbutton7_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.currentObj = handles.currentObj+1;
-if ((handles.currentObj) >= 51)
-    a = errordlg('Cannot go to next cell!','Index Error');
+if (handles.currentObj >= size(handles.ica_sig,1))
+    errordlg('Cannot go to next cell!','Index Error')
     handles.currentObj = handles.currentObj-1;
 else
 popup_sel_index = handles.currentObj;
+set(handles.text2, 'String', num2str(popup_sel_index));
 sVal = handles.stdThresh(popup_sel_index);
 set(handles.slider1,'Value',sVal);
-get(handles.slider1,'Value')
+get(handles.slider1,'Value');
+slider1_Callback(hObject, eventdata, handles);
+if handles.saveCell(popup_sel_index) == 1
+    set(handles.checkbox1,'Value',1);
+else
+    set(handles.checkbox1,'Value',0);
+end
 ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal); % in z-score
 % Saves toggle position of save cell:
 % if handles.saveCell(popup_sel_index)==0
@@ -424,7 +338,7 @@ set(gca,'xticklabel',[]);
 title('Full ICA trace');
 
 handles.ICpeaks{popup_sel_index} = ICpeaks.data;
-sVal
+sVal;
 % 
 % % will update plots based on slider value
 plot(ICpeaks.sig,'b')
@@ -433,3 +347,4 @@ vidLen = size(ICpeaks.sig,2);
 line([0 vidLen],[sVal sVal],'Color',[0 0 0]);
 plot(ICpeaks.data(:,1),ICpeaks.data(:,2),'r.')
 end
+guidata(hObject, handles);
