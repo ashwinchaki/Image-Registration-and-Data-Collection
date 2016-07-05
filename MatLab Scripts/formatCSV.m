@@ -1,4 +1,4 @@
-function formatCSV(foldername)
+% function formatCSV(foldername)
     workingarray = csvread('Transformation_Points.csv');
     %delete('Transformation_Points.csv');
     Transformations = struct;
@@ -25,9 +25,9 @@ function formatCSV(foldername)
         Transformations.files{a-1}.translation = translation; 
     end
     %mousefile = strcat(mousename,'.mat');
-     fname  = sprintf('Mouse-%s',foldername);
-    save(fname,'Transformations');
-end
+%      fname  = sprintf('Mouse-%s',foldername);
+%     save(fname,'Transformations');
+% end
 
 
         

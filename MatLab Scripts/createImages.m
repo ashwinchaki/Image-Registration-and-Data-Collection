@@ -39,7 +39,7 @@ for i=1:nf
     image(PCAparams.stdProjection)  % Create black and white figure   
     axis off;
     imagefile = strrep(filename,'.mat','');
-    export_fig(imagefile,i); % Export abd save the picture
+    export_fig(imagefile,i); % Export and save the picture
 end
 
 close all

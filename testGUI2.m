@@ -1,4 +1,4 @@
-function varargout = ICA_GUI(varargin)
+function varargout = testGUI2(varargin)
 
 % TESTGUI2 MATLAB code for testGUI2.fig
 %      TESTGUI2, by itself, creates a new TESTGUI2 or raises the existing
@@ -23,14 +23,14 @@ function varargout = ICA_GUI(varargin)
 
 % Edit the above text to modify the response to help testGUI2
 
-% Last Modified by GUIDE v2.5 28-Jun-2016 15:20:00
+% Last Modified by GUIDE v2.5 05-Jul-2016 10:49:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @ICA_GUI_OpeningFcn, ...
-                   'gui_OutputFcn',  @ICA_GUI_OutputFcn, ...
+                   'gui_OpeningFcn', @testGUI2_OpeningFcn, ...
+                   'gui_OutputFcn',  @testGUI2_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -45,7 +45,7 @@ end
 % End initialization code - DO NOT EDIT
 
 % --- Executes just before testGUI2 is made visible.
-function ICA_GUI_OpeningFcn(hObject, eventdata, handles, varargin)
+function testGUI2_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -75,7 +75,7 @@ handles.segLabels = segLabels;
 handles.fn = fn;
 handles.ica_sig = ica_sig;
 handles.saveCell = zeros(size(ica_sig,1),1); % change to number of ICAs
-for i = 1:size(ica_sig,1)
+for i = 1:size(ica_sig,1)   
     handles.stdThresh (i,1) = 0;
 end
 % handles.stdThresh = zeros(50,1); % peak standard deviation
@@ -84,7 +84,7 @@ handles.checkbox1;
 handles.currentObj = 1;
 % Update handles structure
 guidata(hObject, handles);
-
+set(handles.text3,'String',handles.fn);
 % This sets up the initial plot - only do when we are invisible
 % so window can get raised using testGUI2.
 if strcmp(get(hObject,'Visible'),'off')
@@ -102,7 +102,7 @@ uiwait(gcf);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = ICA_GUI_OutputFcn(hObject, eventdata, handles)
+function varargout = testGUI2_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -177,29 +177,31 @@ function pushbutton1_Callback(hObject, eventdata, handles) %#ok<*INUSL>
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-popup_sel_index = handles.currentObj
-sVal = get(handles.slider1,'value')
-ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal) % in z-score
-sz = size(imread(handles.fn,1))
-vid = zeros(sz(1),sz(2),100);
-pkFrame = ICpeaks.data(:,1)
-pkFrame(find(pkFrame<10)) = [] %#ok<FNDSB>
-peakTot = min(length(pkFrame),10) 
-if peakTot<1
-    disp('no peaks selected')
-else
-    % just play 10 peaks:
-    count = 1;
-    for peakNum = 1:peakTot
-        pkFrames(count:count+9) = [pkFrame(peakNum)-9:pkFrame(peakNum)];
-        count = count+10;
-    end
-    for i = 1:length(pkFrames)
-        vid(:,:,i) = double(imread(handles.fn,pkFrames(i))); 
-    end
-    vid = vid/max(vid(:))*.8;% arbitrary scale seems to look good
-    implay(vid)
-end
+% popup_sel_index = handles.currentObj;
+% sVal = get(handles.slider1,'value');
+% ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal); % in z-score
+% peaks = sortrows(ICpeaks.data,2);
+% maxPeaks = flipud(peaks);
+% sz = size(imread(handles.fn,1));
+% vid = zeros(sz(1),sz(2),100);
+% pkFrame = maxPeaks(:,1);
+% pkFrame(find(pkFrame<10)) = []; %#ok<FNDSB>
+% peakTot = min(length(pkFrame),10) ;
+% if peakTot<1
+%     disp('no peaks selected')
+% else
+%     % just play 10 peaks:
+%     count = 1;
+%     for peakNum = 1:str2double(get(handles.edit2,'String'))
+%         pkFrames(count:count+9) = [pkFrame(peakNum)-9:pkFrame(peakNum)];
+%         count = count+10;
+%     end
+%     for i = 1:length(pkFrames)
+% %         vid(:,:,i) = double(imread(handles.fn,pkFrames(i))); 
+%     end
+% %     vid = vid/max(vid(:))*.8;% arbitrary scale seems to look good
+% %     implay(vid)
+% end
     
 
 
@@ -348,3 +350,90 @@ line([0 vidLen],[sVal sVal],'Color',[0 0 0]);
 plot(ICpeaks.data(:,1),ICpeaks.data(:,2),'r.')
 end
 guidata(hObject, handles);
+
+
+% --- Executes on button press in pushbutton8.
+function pushbutton8_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton8 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+popup_sel_index = handles.currentObj;
+sVal = get(handles.slider1,'value');
+ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal); % in z-score
+maxPeaks = sortrows(ICpeaks.data,2);
+sz = size(imread(handles.fn,1));
+vid = zeros(sz(1),sz(2),100);
+pkFrame = maxPeaks(:,1);
+userspec = get(handles.edit2,'String');
+pkFrame(find(pkFrame<num2str(userspec))) = []; %#ok<FNDSB>
+peakTot = min(length(pkFrame),10) ;
+if peakTot<1
+    disp('no peaks selected')
+else
+    % just play 10 peaks:
+    count = 1;
+    for peakNum = 1:str2double(get(handles.edit2,'String'))
+        pkFrames(count:count+9) = [pkFrame(peakNum)-9:pkFrame(peakNum)];
+        count = count+10;
+    end
+    for i = 1:length(pkFrames)
+%         vid(:,:,i) = double(imread(handles.fn,pkFrames(i))); 
+    end
+%     vid = vid/max(vid(:))*.8;% arbitrary scale seems to look good
+%     implay(vid)
+end
+
+
+% --- Executes on button press in pushbutton9.
+function pushbutton9_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton9 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+popup_sel_index = handles.currentObj;
+sVal = get(handles.slider1,'value');
+ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal); % in z-score
+peaks = sortrows(ICpeaks.data,2);
+maxPeaks = flipud(peaks);
+sz = size(imread(handles.fn,1));
+vid = zeros(sz(1),sz(2),100);
+pkFrame = maxPeaks(:,1);
+userspec = get(handles.edit2,'String');
+pkFrame(find(pkFrame<num2str(userspec))) = []; %#ok<FNDSB>
+peakTot = min(length(pkFrame),10) ;
+if peakTot<1
+    disp('no peaks selected')
+else
+    % just play 10 peaks:
+    count = 1;
+    for peakNum = 1:str2double(get(handles.edit2,'String'))
+        pkFrames(count:count+9) = [pkFrame(peakNum)-9:pkFrame(peakNum)];
+        count = count+10;
+    end
+    for i = 1:length(pkFrames)
+%         vid(:,:,i) = double(imread(handles.fn,pkFrames(i))); 
+    end
+%     vid = vid/max(vid(:))*.8;% arbitrary scale seems to look good
+%     implay(vid)
+end
+
+
+function edit2_Callback(hObject, eventdata, handles)
+% hObject    handle to edit2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit2 as text
+%        str2double(get(hObject,'String')) returns contents of edit2 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
