@@ -23,7 +23,7 @@ function varargout = testGUI2(varargin)
 
 % Edit the above text to modify the response to help testGUI2
 
-% Last Modified by GUIDE v2.5 05-Jul-2016 10:49:32
+% Last Modified by GUIDE v2.5 06-Jul-2016 15:53:33
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -61,6 +61,8 @@ fn = varargin{1}; % tif name
 segLabels = varargin{2}; % seglabel
 ica_segments = varargin{3}; % seglabel
 ica_sig = varargin{4}; % seglabel
+segCentroids = varargin{5};
+ica_filters = varargin{6};
 segIdx = find(segLabels==1); % Boundary for IC#1 
 
 vidFrame = imread(fn,100); % show 100th frame
@@ -72,8 +74,10 @@ handles.output = hObject;
 % create extra variables to use
 handles.ica_segments = ica_segments;
 handles.segLabels = segLabels;
+handles.segCentroids = segCentroids;
 handles.fn = fn;
 handles.ica_sig = ica_sig;
+handles.ica_filters = ica_filters;
 handles.saveCell = zeros(size(ica_sig,1),1); % change to number of ICAs
 for i = 1:size(ica_sig,1)   
     handles.stdThresh (i,1) = 0;
@@ -82,6 +86,7 @@ end
 handles.ICpeaks = cell(size(ica_sig,1),1); % initialize peak location, size data
 handles.checkbox1;
 handles.currentObj = 1;
+handles.toggle = 0;
 % Update handles structure
 guidata(hObject, handles);
 set(handles.text3,'String',handles.fn);
@@ -94,6 +99,7 @@ if strcmp(get(hObject,'Visible'),'off')
         [B,L,N] = bwboundaries(squeeze(ica_segments(segIdx(j),:,:)));
         plot(B{1}(:,2),B{1}(:,1),'Color',[0 0 1],'LineWidth',1.5);
     end
+    hold off
 end
 
 uiwait(gcf);
@@ -259,6 +265,7 @@ ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal); % in z-score
 % else
 %     handles.checkbox1.Value = 1;
 % end
+if handles.toggle == 0
 axes(handles.axes4);
 cla;
 segIdx = find(handles.segLabels==popup_sel_index);
@@ -268,6 +275,13 @@ hold on
 for j = 1:length(segIdx)
     [B,L,N] = bwboundaries(squeeze(handles.ica_segments(segIdx(j),:,:)));
     plot(B{1}(:,2),B{1}(:,1),'Color',[0 0 1],'LineWidth',1.5);
+end
+hold off
+elseif handles.toggle == 1
+    axes(handles.axes4);
+    cla;
+    imagesc(squeeze(handles.ica_filters(popup_sel_index,:,:)))
+    axis off
 end
 
 axes(handles.axes1);
@@ -320,6 +334,7 @@ ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal); % in z-score
 % else
 %     handles.checkbox1.Value = 1;
 % end
+if handles.toggle == 0
 axes(handles.axes4);
 cla;
 segIdx = find(handles.segLabels==popup_sel_index);
@@ -330,7 +345,13 @@ for j = 1:length(segIdx)
     [B,L,N] = bwboundaries(squeeze(handles.ica_segments(segIdx(j),:,:)));
     plot(B{1}(:,2),B{1}(:,1),'Color',[0 0 1],'LineWidth',1.5);
 end
-
+hold off
+elseif handles.toggle == 1
+    axes(handles.axes4);
+    cla;
+    imagesc(squeeze(handles.ica_filters(popup_sel_index,:,:)))
+    axis off
+end
 axes(handles.axes1);
 cla;
 plot(ICpeaks.sig)
@@ -361,11 +382,13 @@ popup_sel_index = handles.currentObj;
 sVal = get(handles.slider1,'value');
 ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal); % in z-score
 maxPeaks = sortrows(ICpeaks.data,2);
-sz = size(imread(handles.fn,1));
-vid = zeros(sz(1),sz(2),100);
+tiffInfo = imfinfo(handles.fn);
+sz = size(imread(handles.fn,'Index',1,'Info',tiffInfo));
 pkFrame = maxPeaks(:,1);
 userspec = get(handles.edit2,'String');
-pkFrame(find(pkFrame<num2str(userspec))) = []; %#ok<FNDSB>
+vid = zeros(sz(1),sz(2),(str2num(userspec))*10);
+if size(pkFrame > str2num(userspec))    
+pkFrame(find(pkFrame<str2num(userspec))) = []; %#ok<FNDSB>
 peakTot = min(length(pkFrame),10) ;
 if peakTot<1
     disp('no peaks selected')
@@ -376,11 +399,17 @@ else
         pkFrames(count:count+9) = [pkFrame(peakNum)-9:pkFrame(peakNum)];
         count = count+10;
     end
+    tic
     for i = 1:length(pkFrames)
-%         vid(:,:,i) = double(imread(handles.fn,pkFrames(i))); 
+       vid(:,:,i) = double(imread(handles.fn,'Index',pkFrames(i),'Info',tiffInfo));
     end
-%     vid = vid/max(vid(:))*.8;% arbitrary scale seems to look good
-%     implay(vid)
+    time = toc;
+    sprintf('Operation completed in %f seconds',time)
+    vid = vid/max(vid(:))*.8;% arbitrary scale seems to look good
+    implay(vid)
+end
+else
+    errordlg('Error: More peaks selected than exist! Reduce the threshold or reduce number of selected peaks','Index out of bounds')
 end
 
 
@@ -394,14 +423,16 @@ sVal = get(handles.slider1,'value');
 ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal); % in z-score
 peaks = sortrows(ICpeaks.data,2);
 maxPeaks = flipud(peaks);
-sz = size(imread(handles.fn,1));
-vid = zeros(sz(1),sz(2),100);
+tiffInfo = imfinfo(handles.fn);
+sz = size(imread(handles.fn,'Index',1,'Info',tiffInfo));
 pkFrame = maxPeaks(:,1);
 userspec = get(handles.edit2,'String');
-pkFrame(find(pkFrame<num2str(userspec))) = []; %#ok<FNDSB>
+vid = zeros(sz(1),sz(2),(str2num(userspec))*10);
+if (size(pkFrame > str2num(userspec)))
+pkFrame(find(pkFrame<str2num(userspec))) = []; %#ok<FNDSB>
 peakTot = min(length(pkFrame),10) ;
 if peakTot<1
-    disp('no peaks selected')
+    errordlg('No peaks selected!','Error')
 else
     % just play 10 peaks:
     count = 1;
@@ -409,12 +440,19 @@ else
         pkFrames(count:count+9) = [pkFrame(peakNum)-9:pkFrame(peakNum)];
         count = count+10;
     end
+    tic
     for i = 1:length(pkFrames)
-%         vid(:,:,i) = double(imread(handles.fn,pkFrames(i))); 
+       vid(:,:,i) = double(imread(handles.fn,'Index',pkFrames(i),'Info',tiffInfo));
     end
-%     vid = vid/max(vid(:))*.8;% arbitrary scale seems to look good
-%     implay(vid)
+    time = toc;
+    sprintf('Operation completed in %f seconds',time)
+    vid = vid/max(vid(:))*.8;% arbitrary scale seems to look good
+    implay(vid)
 end
+else
+    errordlg('Error: More peaks selected than exist! Reduce the threshold or reduce number of selected peaks','Index out of bounds')
+end
+
 
 
 function edit2_Callback(hObject, eventdata, handles)
@@ -437,3 +475,132 @@ function edit2_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in pushbutton12.
+function pushbutton12_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton12 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if handles.toggle == 0
+    handles.toggle = 1;
+    
+else
+    handles.toggle = 0;
+end
+guidata(hObject, handles);
+popup_sel_index = handles.currentObj;
+set(handles.text2, 'String', num2str(popup_sel_index));
+sVal = handles.stdThresh(popup_sel_index);
+set(handles.slider1,'Value',sVal);
+get(handles.slider1,'Value');
+slider1_Callback(hObject, eventdata, handles);
+if handles.saveCell(popup_sel_index) == 1
+    set(handles.checkbox1,'Value',1);
+else
+    set(handles.checkbox1,'Value',0);
+end
+ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal); % in z-score
+% Saves toggle position of save cell:
+% if handles.saveCell(popup_sel_index)==0
+%     handles.checkbox1.Value = 0;
+% else
+%     handles.checkbox1.Value = 1;
+% end
+if handles.toggle == 0
+axes(handles.axes4);
+cla;
+segIdx = find(handles.segLabels==popup_sel_index);
+vidFrame = imread(handles.fn,100);
+imshow(vidFrame,[0 max(max(vidFrame))]);
+hold on
+for j = 1:length(segIdx)
+    [B,L,N] = bwboundaries(squeeze(handles.ica_segments(segIdx(j),:,:)));
+    plot(B{1}(:,2),B{1}(:,1),'Color',[0 0 1],'LineWidth',1.5);
+end
+hold off
+elseif handles.toggle == 1
+    axes(handles.axes4);
+    cla;
+    imagesc(squeeze(handles.ica_filters(popup_sel_index,:,:)))
+    axis off
+end
+axes(handles.axes1);
+cla;
+plot(ICpeaks.sig)
+vidLen = size(handles.ica_sig,2);
+set(gca,'xtick',[]);
+set(gca,'xticklabel',[]);
+title('Full ICA trace');
+
+handles.ICpeaks{popup_sel_index} = ICpeaks.data;
+sVal;
+% 
+% % will update plots based on slider value
+plot(ICpeaks.sig,'b')
+hold on
+vidLen = size(ICpeaks.sig,2);
+line([0 vidLen],[sVal sVal],'Color',[0 0 0]);
+plot(ICpeaks.data(:,1),ICpeaks.data(:,2),'r.')
+guidata(hObject,handles);
+
+
+% --- Executes on button press in pushbutton13.
+function pushbutton13_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton13 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+popup_sel_index = handles.currentObj;
+set(handles.text2, 'String', num2str(popup_sel_index));
+sVal = handles.stdThresh(popup_sel_index);
+set(handles.slider1,'Value',sVal);
+get(handles.slider1,'Value');
+slider1_Callback(hObject, eventdata, handles);
+if handles.saveCell(popup_sel_index) == 1
+    set(handles.checkbox1,'Value',1);
+else
+    set(handles.checkbox1,'Value',0);
+end
+ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal); % in z-score
+% Saves toggle position of save cell:
+% if handles.saveCell(popup_sel_index)==0
+%     handles.checkbox1.Value = 0;
+% else
+%     handles.checkbox1.Value = 1;
+% end
+if handles.toggle == 0
+axes(handles.axes4);
+cla;
+segIdx = find(handles.segLabels==popup_sel_index);
+vidFrame = imread(handles.fn,100);
+imshow(vidFrame,[0 max(max(vidFrame))]);
+hold on
+for j = 1:length(segIdx)
+    [B,L,N] = bwboundaries(squeeze(handles.ica_segments(segIdx(j),:,:)));
+    plot(B{1}(:,2),B{1}(:,1),'Color',[0 0 1],'LineWidth',1.5);
+end
+hold off
+elseif handles.toggle == 1
+    axes(handles.axes4);
+    cla;
+    imagesc(squeeze(handles.ica_filters(popup_sel_index,:,:)))
+    axis off
+end
+axes(handles.axes1);
+cla;
+plot(ICpeaks.sig)
+vidLen = size(handles.ica_sig,2);
+set(gca,'xtick',[]);
+set(gca,'xticklabel',[]);
+title('Full ICA trace');
+
+handles.ICpeaks{popup_sel_index} = ICpeaks.data;
+sVal;
+% 
+% % will update plots based on slider value
+plot(ICpeaks.sig,'b')
+hold on
+vidLen = size(ICpeaks.sig,2);
+line([0 vidLen],[sVal sVal],'Color',[0 0 0]);
+plot(ICpeaks.data(:,1),ICpeaks.data(:,2),'r.')
+guidata(hObject,handles);
