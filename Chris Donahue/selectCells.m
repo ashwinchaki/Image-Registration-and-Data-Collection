@@ -9,7 +9,7 @@ clear variables;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Input paramters for ICA image segmentation and selection:
 ICAparams.mu = .5; % weight of temporal info for ICA (check references)
-ICAparams.nIC = 100; % number of ICs to find
+ICAparams.nIC = 50; % number of ICs to find
 ICAparams.smwidth = 3; % std of Gaussian kernel for image segmentation
 ICAparams.thresh = 3; % threshold for spatial filters (std) for image segmentation
 ICAparams.arealims = [50 1e6]; % minimum and maximum size for image segmentation
@@ -73,8 +73,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [ica_segments, segLabels, segCentroids] = ...
     CellsortSegmentation(ica_filters, ICAparams.smwidth, ICAparams.thresh, ICAparams.arealims, 0);
-[pathstr,fname,ext] = fileparts(PCAparams.tiffFile);
-fn = strcat(fname,ext);
+slashIdx = [find(PCAparams.tiffFile=='\') find(PCAparams.tiffFile=='/')]; % make it compatible with mac or windows
+fn = PCAparams.tiffFile(slashIdx(end)+1:end);
 ICchosenData = testGUI2(fn,segLabels,ica_segments,ica_sig,segCentroids,ica_filters);
 
 

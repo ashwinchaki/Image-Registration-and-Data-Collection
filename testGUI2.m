@@ -134,7 +134,10 @@ ICpeaks = getGUIpeaks(handles.ica_sig(popup_sel_index,:),sVal); % in z-score
 handles.ICpeaks{popup_sel_index} = ICpeaks.data;
 set(hObject,'Max',max(ICpeaks.sig)*.99) % keep slider in range
 set(hObject,'Min',0)
-
+numPeaks = numel(ICpeaks.data)/2;
+if str2double(get(handles.edit2,'String')) > numPeaks
+    set(handles.edit2,'String',num2str(numPeaks));
+end
 % will update plots based on slider value
 plot(ICpeaks.sig,'b')
 hold on
@@ -163,6 +166,7 @@ hold on
 plot(xVec,avData,'Color',[.9 .9 .9])
 plot(xVec,nanmean(avData),'r')
 handles.stdThresh(popup_sel_index) = get(handles.slider1,'value');
+drawnow;
 guidata(hObject, handles);
 
 
@@ -396,24 +400,26 @@ maxPeaks = sortrows(ICpeaks.data,2);
 tiffInfo = imfinfo(handles.fn);
 sz = size(imread(handles.fn,'Index',1,'Info',tiffInfo));
 pkFrame = maxPeaks(:,1);
-userspec = get(handles.edit2,'String');
-vid = zeros(sz(1),sz(2),(str2num(userspec))*10);
-if numel(pkFrame) >= str2num(userspec)   
+userspec = str2double(get(handles.edit2,'String'));
+vid = zeros(sz(1),sz(2),((userspec))*10);
+if userspec > numel(pkFrame)
+    userspec = numel(pkFrame);
+end
     pkFrame(find(pkFrame<sVal)) = []; %#ok<FNDSB>
     peakTot = min(length(pkFrame),10) ;
     if peakTot<1
-        disp('no peaks selected')
+        errordlg('No peaks selected!','Error')
     else
         % just play 10 peaks:
         count = 1;
-        for peakNum = 1:str2double(get(handles.edit2,'String'))
+        for peakNum = 1:userspec
             pkFrames(count:count+9) = [pkFrame(peakNum)-9:pkFrame(peakNum)];
             count = count+10;
         end
         tic
         for i = 1:length(pkFrames)
     %        vid(:,:,i) = double(imread(handles.fn,'Index',pkFrames(i),'Info',tiffInfo));
-            currFrame = imread(handles.fn,'Index',pkFrames(i),'Info', tiffInfo);
+            currFrame = imread(handles.fn,'Index',pkFrames(i));
             locs = find(handles.segLabels==handles.currentObj);
             for b = 1:size(locs)
                 currFrame = insertMarker(currFrame,[handles.segCentroids(locs(b)),handles.segCentroids(locs(b),2)],'+','color','green');
@@ -426,9 +432,6 @@ if numel(pkFrame) >= str2num(userspec)
         vid = vid/max(vid(:))*.8;% arbitrary scale seems to look good
         implay(vid)
     end
-else
-    errordlg('Error: More peaks selected than exist! Reduce the threshold or reduce number of selected peaks','Index out of bounds')
-end
 
 
 % --- Executes on button press in pushbutton9.
@@ -444,9 +447,11 @@ maxPeaks = flipud(peaks);
 tiffInfo = imfinfo(handles.fn);
 sz = size(imread(handles.fn,'Index',1,'Info',tiffInfo));
 pkFrame = maxPeaks(:,1);
-userspec = get(handles.edit2,'String');
-vid = zeros(sz(1),sz(2),(str2num(userspec))*10);
-if numel(pkFrame) >= str2num(userspec)
+userspec = str2double(get(handles.edit2,'String'));
+vid = zeros(sz(1),sz(2),((userspec))*10);
+if userspec > numel(pkFrame)
+    userspec = numel(pkFrame);
+end
     pkFrame(find(pkFrame<sVal)) = []; %#ok<FNDSB>
     peakTot = min(length(pkFrame),10) ;
     if peakTot<1
@@ -454,14 +459,14 @@ if numel(pkFrame) >= str2num(userspec)
     else
         % just play 10 peaks:
         count = 1;
-        for peakNum = 1:str2double(get(handles.edit2,'String'))
+        for peakNum = 1:userspec
             pkFrames(count:count+9) = [pkFrame(peakNum)-9:pkFrame(peakNum)];
             count = count+10;
         end
         tic
         for i = 1:length(pkFrames)
     %        vid(:,:,i) = double(imread(handles.fn,'Index',pkFrames(i),'Info',tiffInfo));
-            currFrame = imread(handles.fn,'Index',pkFrames(i),'Info', tiffInfo);
+            currFrame = imread(handles.fn,'Index',pkFrames(i));
             locs = find(handles.segLabels==handles.currentObj);
             for b = 1:size(locs)
                 currFrame = insertMarker(currFrame,[handles.segCentroids(locs(b)),handles.segCentroids(locs(b),2)],'+','color','green');
@@ -474,9 +479,6 @@ if numel(pkFrame) >= str2num(userspec)
         vid = vid/max(vid(:))*.8;% arbitrary scale seems to look good
         implay(vid)
     end
-else
-    errordlg('Error: More peaks selected than exist! Reduce the threshold or reduce number of selected peaks','Index out of bounds')
-end
 
 
 
